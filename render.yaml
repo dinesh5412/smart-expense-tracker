@@ -2,10 +2,9 @@ services:
   # Spring Boot Backend Web Service
   - type: web
     name: smart-expense-backend
-    runtime: java
-    rootDir: backend
-    buildCommand: chmod +x mvnw && ./mvnw clean package -DskipTests
-    startCommand: java -jar target/smart-expense-tracker-1.0.0.jar --spring.profiles.active=h2
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
     plan: free
     envVars:
       - key: PORT
@@ -23,6 +22,9 @@ services:
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist
     plan: free
+    envVars:
+      - key: VITE_API_BASE_URL
+        value: /api
     routes:
       - type: rewrite
         source: /*
