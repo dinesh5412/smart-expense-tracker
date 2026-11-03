@@ -1,0 +1,64 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  backend-build:
+    name: Build & Test Backend (Spring Boot 3 / Java 17)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build Spring Boot JAR
+        run: |
+          cd backend
+          chmod +x mvnw
+          ./mvnw clean package -DskipTests
+
+      - name: Upload Backend Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-jar
+          path: backend/target/*.jar
+
+  frontend-build:
+    name: Build & Test Frontend (React 18 / Vite)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Dependencies
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Build Production Frontend Bundle
+        run: |
+          cd frontend
+          npm run build
+
+      - name: Upload Frontend Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist/
