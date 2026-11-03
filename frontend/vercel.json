@@ -1,8 +1,13 @@
 {
   "rewrites": [
     {
+      "source": "/api/:path*",
+      "destination": "https://smart-expense-tracker-1-z6xi.onrender.com/api/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
   ]
 }
+

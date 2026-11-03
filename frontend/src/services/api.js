@@ -1,4 +1,9 @@
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
+const API_BASE =
+  import.meta.env.VITE_API_BASE_URL ||
+  (typeof window !== 'undefined' &&
+  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ? '/api'
+    : 'https://smart-expense-tracker-1-z6xi.onrender.com/api');
 
 function getAuthHeader() {
   const token = localStorage.getItem('token');
@@ -17,7 +22,16 @@ async function handleResponse(response) {
   const data = await response.json().catch(() => null);
 
   if (!response.ok) {
-    const errorMsg = (data && data.message) || response.statusText || 'Request failed';
+    let errorMsg = (data && data.message) || response.statusText;
+    if (!errorMsg || errorMsg === 'Request failed') {
+      if (response.status === 405) {
+        errorMsg = 'Method not allowed (405). API route unavailable.';
+      } else if (response.status === 502 || response.status === 503 || response.status === 504) {
+        errorMsg = 'Backend is waking up on Render (free tier cold-start). Please wait ~20 seconds and retry.';
+      } else {
+        errorMsg = 'Request failed (' + response.status + '). Please verify credentials.';
+      }
+    }
     throw new Error(errorMsg);
   }
 

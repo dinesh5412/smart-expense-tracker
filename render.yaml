@@ -24,7 +24,7 @@ services:
     plan: free
     envVars:
       - key: VITE_API_BASE_URL
-        value: https://smart-expense-backend.onrender.com/api
+        value: https://smart-expense-tracker-1-z6xi.onrender.com/api
     routes:
       - type: rewrite
         source: /*
